@@ -2,7 +2,7 @@ import { ObjectID } from "bson";
 import Vue from "vue";
 import config from "../config";
 
-const state = {
+var state = {
 	id: undefined,
 	privateId: undefined,
 	name: "",
@@ -245,8 +245,17 @@ const actions = {
 	},
 	setShapeData: function({commit},data) {
 		return new Promise((resolve,reject) => {
-			const s = state.shapes[data.id];
+			var s = state.shapes[data.id];
 			if (!s) return reject({msg:"Shape #"+data.id+" does not exist.1"});
+			if (data.icon != undefined && data.icon != "")
+			{
+				//s.icon = data.icons;
+                /*s.icon = {
+                    url: "https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru",
+	                scaledSize: new google.maps.Size(45, 48)
+                };
+                console.log(s);*/
+			}
 			data.shape = s;
 			commit("setShapeData",data);
 			resolve({msg:"Shape data updated."});
@@ -423,6 +432,7 @@ const prepareDotData = function(data) {
 			data: ""
 		}
 	},config.dot,data);
+	console.log(out);
 	if (data.latLng) {
 		out.position = {lat:data.latLng.lat(),lng:data.latLng.lng()};
 	}

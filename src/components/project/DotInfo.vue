@@ -33,18 +33,43 @@
 			<p class="rp-iwin-actions" v-if="editing">
 				<a class="rp-iwin-action btn btn-primary btn-sm" href="javascript:void(0)" @click="save()"><span class="icon-checkmark"></span> Save</a>
 				<a class="rp-iwin-action btn btn-default btn-sm" href="javascript:void(0)" @click="cancel()"><span class="icon-times"></span> Cancel</a>
-				<a class="rp-iwin-action btn btn-success btn-sm" href="javascript:void(0)" @click="cancel()"><span class="icon-times"></span> Стиль</a>
+				<a class="rp-iwin-action btn btn-success btn-sm" href="javascript:void(0)" @click="showStyle=true"><span class="icon-times"></span> Стиль</a>
 				<!--<a class="rp-iwin-action" href="https://en.wikipedia.org/wiki/Markdown" target="_blank">Markdown supported</a>-->
-				<div class="popup_window" v-if="editing">
+				<div class="popup_window" v-if="(editing && showStyle)">
 					<form id="addIcons">
 						<input type="hidden" value="upload_file" name="action">
 						<label class="file_upload">
 							<span class="button">Выбрать</span>
 							<mark>Файл не выбран</mark>
-							<input name="file_name" type="file">
+							<input name="file_name" type="file" accept="image/*">
 						</label>
 						<button class="btn btn-success" type="button" @click="uploadIcon()">Добавить</button>
 					</form>
+					<div class="icons_container" style="">
+						<span>Загруженные меркеры</span>
+						<div class="icons_elem" style="">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;" @click="selectIcons($event)">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+						</div>
+						<div class="control_button" style="">
+							<button class="btn btn-primary btn-sm" style=" box-sizing: border-box;"><span class="icon-checkmark"></span>Save</button>
+							<button class="btn btn-default" style="box-sizing: border-box; margin-left: 10px; padding: 5.5px 12px;" @click="showStyle=false">Cancel</button>
+						</div>
+					</div>
 				</div>
 			</p>
 		</div>
@@ -60,7 +85,9 @@ export default {
 			r: undefined,
 			editing: false,
 			name: "",
-			text: ""
+			text: "",
+            showStyle: false,
+			selectedIcons: ""
 		}
 	},
 	computed: {
@@ -121,8 +148,13 @@ export default {
 
 			});
 		},
+		selectIcons: function (elem) {
+            var img = elem.path[0];
+			$(img).css("border", "2px solid #7300df");
+			this.selectedIcons = $(img).attr("src");
+        },
 		uploadIcon: function () {
-
+			var self = this;
             var ajax_settings = {
                 // Your server script to process the upload
                 url  : "http://www.barhopping.richcode.ru/maps/api/query.php",
@@ -157,21 +189,31 @@ export default {
 
                     return myXhr;
                 },
-
                 success: function(data) {
-                    console.log(data);
+                    try
+                    {
+                        var message = JSON.parse(data);
+                        console.log(message);
+                        self.$bus.$emit(message.type, message.message);
+                        $("#addIcons")[0].reset();
+                        $("#addIcons mark").html("Файл не выбран");
+					}
+					catch (e)
+					{
+                        self.$bus.$emit("error",e.message);
+					}
                 }
             };
-			console.log($("#addIcons input[type='file']").val());
             $.ajax(ajax_settings);
         },
 		cancel: function() {
 			this.name = "";
 			this.text = "";
 			this.editing = false;
+			this.showStyle = false;
 		},
 		save: function() {
-			this.$store.dispatch("project/setShapeData",{id:this.r.id,name:this.name,text:this.text}).then(result => {
+			this.$store.dispatch("project/setShapeData",{id:this.r.id,name:this.name,text:this.text,icon:"https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru"}).then(result => {
 				this.$bus.$emit("success",result.msg);
 				this.$bus.$emit("toggleDotInfo");
 				this.cancel();
@@ -213,7 +255,7 @@ export default {
 <style>
 	#addIcons
 	{
-		width: 100%;
+		width: 290px;
 		text-align: center;
 		margin-top: 10px;
 		margin-left: 5px;
@@ -230,15 +272,16 @@ export default {
 	.popup_window
 	{
 		position: absolute;
-		height: 254px;
+		height: 294px;
 		width: 300px;
 		background: #e6e6e6;
-		display: inline-flex;
+		--display: inline-flex;
 		right: -150px;
 		z-index: 2;
 		border-radius: 3px;
 		transform: translateY(-50%);
 		box-shadow: 0 0 10px rgba(0,0,0,0.5);
+		box-sizing: border-box;
 	}
 	.popup_window:before
 	{
@@ -324,5 +367,29 @@ export default {
 		background: #5d00b3;
 		box-shadow: 0 0 3px rgba(0,0,0,0.3) inset
 	}
-
+	.icons_container
+	{
+		width: 100%;
+		height: 200px;
+		border-top: 1px solid black;
+		padding-right: 5px;
+		padding-bottom: 5px;
+		padding-left: 5px;
+		margin-top: 5px;
+		box-sizing: border-box;
+	}
+	.icons_elem
+	{
+		width: 100%;
+		text-align: center;
+		overflow-y: scroll;
+		height: 157px;
+	}
+	.control_button
+	{
+		width: 100%;
+		box-sizing: border-box;
+		padding: 5px;
+		padding-left: 16px;
+	}
 </style>
