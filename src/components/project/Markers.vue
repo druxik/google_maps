@@ -13,7 +13,7 @@
 				v-if="s.type=='dot'"
 				:key="s.id"
 				:position="s.position"
-				:icon="{url:s.icon,scaledSize:dotIconSize,anchor:dotIconAnchor}"
+				:icon="{url:s.icon,scaledSize:dotIconSize(s.customIcon),anchor:dotIconAnchor}"
 				:clickable="true"
 				:draggable="true"
 				@click="$bus.$emit('toggleDotInfo',s)"
@@ -49,14 +49,18 @@ export default {
 		markerIconAnchor: function() {
 			return new google.maps.Point(15,15);
 		},
-		dotIconSize: function() {
-			return new google.maps.Size(22,40);
-		},
 		dotIconAnchor: function() {
 			return new google.maps.Point(11,40);
 		}
 	},
 	methods: {
+        dotIconSize: function(customIcon) {
+            /*if (customIcon)
+            	return new google.maps.Size(45,48);
+            return new google.maps.Size(22,40);
+            */
+            return customIcon ? new google.maps.Size(45,48) : new google.maps.Size(22,40);
+        },
 		updateDotPosition: function(shape,data) {
 			this.$store.dispatch("project/setShapeData",{id:shape.id,position:{lat:data.latLng.lat(),lng:data.latLng.lng()}}).then(result => {
 				this.$bus.$emit("success",result.msg);

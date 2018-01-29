@@ -2,7 +2,7 @@ import { ObjectID } from "bson";
 import Vue from "vue";
 import config from "../config";
 
-var state = {
+const state = {
 	id: undefined,
 	privateId: undefined,
 	name: "",
@@ -245,19 +245,15 @@ const actions = {
 	},
 	setShapeData: function({commit},data) {
 		return new Promise((resolve,reject) => {
-			var s = state.shapes[data.id];
+			const s = state.shapes[data.id];
 			if (!s) return reject({msg:"Shape #"+data.id+" does not exist.1"});
 			if (data.icon != undefined && data.icon != "")
 			{
-				//s.icon = data.icons;
-                /*s.icon = {
-                    url: "https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru",
-	                scaledSize: new google.maps.Size(45, 48)
-                };
-                console.log(s);*/
+                s.icon = data.icon;
+                s.customIcon = data.customIcon;
 			}
 			data.shape = s;
-			commit("setShapeData",data);
+            commit("setShapeData",data);
 			resolve({msg:"Shape data updated."});
 		});
 	},
@@ -430,13 +426,13 @@ const prepareDotData = function(data) {
 			loading: false,
 			status: 0,
 			data: ""
-		}
+		},
+		customIcon: false
 	},config.dot,data);
-	console.log(out);
 	if (data.latLng) {
 		out.position = {lat:data.latLng.lat(),lng:data.latLng.lng()};
 	}
-	return _.pick(out,"id","type","name","text","position","icon","geocode");
+	return _.pick(out,"id","type","name","text","position","icon","geocode", "customIcon");
 }
 
 const prepareRouteData = function(data) {

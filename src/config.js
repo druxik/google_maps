@@ -24,10 +24,7 @@ export default {
 		}]
 	},
 	dot: {
-		icon: {
-            url: "https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru",
-            scaledSize: {}
-		},
+		icon: "https://mt.googleapis.com/vt/icon/name=icons/spotlight/spotlight-poi.png&scale=1",
 		name: "Untitled marker"
 	},
 	route: {

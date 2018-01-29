@@ -33,7 +33,7 @@
 			<p class="rp-iwin-actions" v-if="editing">
 				<a class="rp-iwin-action btn btn-primary btn-sm" href="javascript:void(0)" @click="save()"><span class="icon-checkmark"></span> Save</a>
 				<a class="rp-iwin-action btn btn-default btn-sm" href="javascript:void(0)" @click="cancel()"><span class="icon-times"></span> Cancel</a>
-				<a class="rp-iwin-action btn btn-success btn-sm" href="javascript:void(0)" @click="showStyle=true"><span class="icon-times"></span> Стиль</a>
+				<a class="rp-iwin-action btn btn-success btn-sm" href="javascript:void(0)" @click="showStyleIcon(r.icon)"><span class="icon-times"></span> Стиль</a>
 				<!--<a class="rp-iwin-action" href="https://en.wikipedia.org/wiki/Markdown" target="_blank">Markdown supported</a>-->
 				<div class="popup_window" v-if="(editing && showStyle)">
 					<form id="addIcons">
@@ -48,25 +48,11 @@
 					<div class="icons_container" style="">
 						<span>Загруженные меркеры</span>
 						<div class="icons_elem" style="">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;" @click="selectIcons($event)">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;">
+							<img src="https://mt.googleapis.com/vt/icon/name=icons/spotlight/spotlight-poi.png&scale=1" style=" padding: 2px;" @click="selectIcons($event)" data-custom="false">
+							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;" @click="selectIcons($event)" data-custom="true">
 						</div>
 						<div class="control_button" style="">
-							<button class="btn btn-primary btn-sm" style=" box-sizing: border-box;"><span class="icon-checkmark"></span>Save</button>
+							<button class="btn btn-primary btn-sm" style=" box-sizing: border-box;" @click="showStyle=false"><span class="icon-checkmark"></span>Save</button>
 							<button class="btn btn-default" style="box-sizing: border-box; margin-left: 10px; padding: 5.5px 12px;" @click="showStyle=false">Cancel</button>
 						</div>
 					</div>
@@ -87,7 +73,8 @@ export default {
 			name: "",
 			text: "",
             showStyle: false,
-			selectedIcons: ""
+			selectedIcons: "",
+			customIcon: false
 		}
 	},
 	computed: {
@@ -148,10 +135,19 @@ export default {
 
 			});
 		},
+		showStyleIcon(icon)
+		{
+            this.showStyle = true;
+            this.$nextTick(() => {
+                $(".icons_elem img[src='"+icon+"']").css("border", "2px solid #7300df");
+            });
+		},
 		selectIcons: function (elem) {
             var img = elem.path[0];
+            $(".icons_elem img").css("border", "");
 			$(img).css("border", "2px solid #7300df");
 			this.selectedIcons = $(img).attr("src");
+			this.customIcon = ($(img).attr("data-custom") == "true");
         },
 		uploadIcon: function () {
 			var self = this;
@@ -213,10 +209,18 @@ export default {
 			this.showStyle = false;
 		},
 		save: function() {
-			this.$store.dispatch("project/setShapeData",{id:this.r.id,name:this.name,text:this.text,icon:"https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru"}).then(result => {
+		    var data = {id:this.r.id,name:this.name,text:this.text};
+			if (this.selectedIcons != "")
+			{
+                data.icon = this.selectedIcons;
+                data.customIcon = this.customIcon;
+            }
+			this.$store.dispatch("project/setShapeData", data).then(result => {
 				this.$bus.$emit("success",result.msg);
 				this.$bus.$emit("toggleDotInfo");
 				this.cancel();
+                this.selectedIcons = "";
+                this.customIcon = false;
 			}).catch(result => this.$bus.$emit("error",result.msg));
 		},
 		remove: function() {
@@ -391,5 +395,10 @@ export default {
 		box-sizing: border-box;
 		padding: 5px;
 		padding-left: 16px;
+	}
+	.icons_elem img
+	{
+		width: 45px;
+		height: 48px;
 	}
 </style>
