@@ -39,7 +39,7 @@
 								</a>
 							</template>
 							<template v-if="s.type=='route'">
-								<div class="rp-layer-route rp-layer-draggable" :key="s.id" :ref="'shape'+s.id">
+								<div class="rp-layer-route rp-layer-draggable" :key="s.id" :ref="'shape'+s.id" @click="buildRoute(s)">
 									<div class="clearfix">
 										<div class="rp-layer-route-header pull-left">
 											<span class="icon icon-directions" v-if="s.editing"></span>
@@ -203,7 +203,7 @@ export default {
 		},
 		closePicker(s)
 		{
-			s.showColor = false;
+		    s.showColor = false;
 		},
 		showPicker(s)
 		{
@@ -408,5 +408,9 @@ export default {
 		position: absolute;
 		z-index: 2;
 		right: 5px;
+	}
+	.rp-layer-route
+	{
+		cursor: pointer;
 	}
 </style>
