@@ -9,7 +9,7 @@ import PromisesBus from "./utils/PromisesBus";
 import Draggable from "vuedraggable";
 import Alert from "./components/utils/Alert.vue";
 import store from "./store";
-
+var iconsArray = ["https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru"];
 Vue.use(VueGoogleMaps,{
 	load: {
 		key: "AIzaSyBg4OgaTYn02ZESKX2DuQ70wzORVCrsVRM",
@@ -75,6 +75,16 @@ Object.defineProperty(Vue.prototype,"$promises",{
 	get: function() {
 		return this.$root.promisesBus;
 	}
+});
+
+Object.defineProperty(Vue.prototype,"$icons",{
+	get: function() {
+        this.$root.icons = iconsArray;
+		return this.$root.icons;
+	},
+	set: function (value) {
+        iconsArray.push(value);
+    }
 });
 
 Object.defineProperty(Vue.prototype,"$jsonData",{

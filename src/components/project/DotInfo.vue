@@ -31,9 +31,9 @@
 				<a class="rp-iwin-action btn btn-default btn-sm" href="javascript:void(0)" @click="remove()"><span class="icon-times"></span> Delete</a>
 			</p>
 			<p class="rp-iwin-actions" v-if="editing">
-				<a class="rp-iwin-action btn btn-primary btn-sm" href="javascript:void(0)" @click="save()"><span class="icon-checkmark"></span> Save</a>
-				<a class="rp-iwin-action btn btn-default btn-sm" href="javascript:void(0)" @click="cancel()"><span class="icon-times"></span> Cancel</a>
-				<a class="rp-iwin-action btn btn-success btn-sm" href="javascript:void(0)" @click="showStyleIcon(r.icon)"><span class="icon-times"></span> Стиль</a>
+				<a class="rp-iwin-action btn btn-primary btn-sm" href="javascript:void(0)" :disabled="showStyle" @click="save()"><span class="icon-checkmark"></span> Save</a>
+				<a class="rp-iwin-action btn btn-default btn-sm" href="javascript:void(0)" :disabled="showStyle" @click="cancel()"><span class="icon-times"></span> Cancel</a>
+				<a class="rp-iwin-action btn btn-success btn-sm" href="javascript:void(0)" :disabled="showStyle" @click="showStyleIcon(r.icon)"><span class="icon-times"></span> Маркер</a>
 				<!--<a class="rp-iwin-action" href="https://en.wikipedia.org/wiki/Markdown" target="_blank">Markdown supported</a>-->
 				<div class="popup_window" v-if="(editing && showStyle)">
 					<form id="addIcons">
@@ -47,13 +47,17 @@
 					</form>
 					<div class="icons_container" style="">
 						<span>Загруженные меркеры</span>
-						<div class="icons_elem" style="">
-							<img src="https://mt.googleapis.com/vt/icon/name=icons/spotlight/spotlight-poi.png&scale=1" style=" padding: 2px;" @click="selectIcons($event)" data-custom="false">
-							<img src="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru" style=" padding: 2px;" @click="selectIcons($event)" data-custom="true">
+						<div class="icons_elem">
+
+							<div style="background-image: url('https://mt.googleapis.com/vt/icon/name=icons/spotlight/spotlight-poi.png&scale=1')" @click="selectIcons($event)" data-custom="false" data-url="https://mt.googleapis.com/vt/icon/name=icons/spotlight/spotlight-poi.png&scale=1"></div>
+							<div v-for="icon in icons" v-bind:style="{ 'background-image' : 'url(' + icon + ')'}"  @click="selectIcons($event)" data-custom="true" :data-url="icon"></div>
+							<!--<div style="background-image: url('https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru')" @click="selectIcons($event)" data-custom="true" data-url="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru"></div>-->
+
+
 						</div>
 						<div class="control_button" style="">
 							<button class="btn btn-primary btn-sm" style=" box-sizing: border-box;" @click="showStyle=false"><span class="icon-checkmark"></span>Save</button>
-							<button class="btn btn-default" style="box-sizing: border-box; margin-left: 10px; padding: 5.5px 12px;" @click="showStyle=false">Cancel</button>
+							<button class="btn btn-default" style="box-sizing: border-box; margin-left: 10px; padding: 5.5px 12px;" @click="cancelStyle">Cancel</button>
 						</div>
 					</div>
 				</div>
@@ -74,7 +78,8 @@ export default {
 			text: "",
             showStyle: false,
 			selectedIcons: "",
-			customIcon: false
+			customIcon: false,
+			icons: this.$icons
 		}
 	},
 	computed: {
@@ -94,7 +99,18 @@ export default {
 			
 			this.$nextTick(() => {
 				this.editing = true;
-
+			});
+		},
+		cancelStyle: function () {
+			this.selectedIcons = "";
+			this.showStyle = false;
+			return;
+        },
+		showStyleIcon(url)
+		{
+		    this.showStyle = true;
+            this.$nextTick(() => {
+                $(".icons_elem div[data-url='"+url+"']").css("border", "2px solid #7300df");
                 $(function(){
                     var wrapper = $( ".file_upload" ),
                         inp = wrapper.find( "input" ),
@@ -115,8 +131,8 @@ export default {
                         var file_name = "";
                         if( file_api && inp[ 0 ].files[ 0 ] )
                             file_name = inp[ 0 ].files[ 0 ].name;
-                        /*else
-                            file_name = inp.val().replace( "C:\\fakepath\\", '' );*/
+                        else
+                            file_name = inp.val().replace( "C:\\fakepath\\", '' );
 
                         if( ! file_name.length )
                             return;
@@ -132,22 +148,14 @@ export default {
                 $( window ).resize(function(){
                     $( ".file_upload input" ).triggerHandler( "change" );
                 });
-
-			});
-		},
-		showStyleIcon(icon)
-		{
-            this.showStyle = true;
-            this.$nextTick(() => {
-                $(".icons_elem img[src='"+icon+"']").css("border", "2px solid #7300df");
             });
 		},
 		selectIcons: function (elem) {
-            var img = elem.path[0];
-            $(".icons_elem img").css("border", "");
-			$(img).css("border", "2px solid #7300df");
-			this.selectedIcons = $(img).attr("src");
-			this.customIcon = ($(img).attr("data-custom") == "true");
+            var div = elem.path[0];
+            $(".icons_elem div").css("border", "");
+			$(div).css("border", "2px solid #7300df");
+			this.selectedIcons = $(div).css("background-image").replace(/(?:^url\(["']?|["']?\)$)/g, "");
+			this.customIcon = ($(div).attr("data-custom") == "true");
         },
 		uploadIcon: function () {
 			var self = this;
@@ -193,6 +201,12 @@ export default {
                         self.$bus.$emit(message.type, message.message);
                         $("#addIcons")[0].reset();
                         $("#addIcons mark").html("Файл не выбран");
+                        if (message.type == "success")
+						{
+                            // push in self.$icons new url image
+						    self.icons.push(message.url);
+                            self.$nextTick(() => {});
+						}
 					}
 					catch (e)
 					{
@@ -203,12 +217,16 @@ export default {
             $.ajax(ajax_settings);
         },
 		cancel: function() {
+            if (this.showStyle)
+                return;
 			this.name = "";
 			this.text = "";
 			this.editing = false;
 			this.showStyle = false;
 		},
 		save: function() {
+		    if (this.showStyle)
+		        return;
 		    var data = {id:this.r.id,name:this.name,text:this.text};
 			if (this.selectedIcons != "")
 			{
@@ -219,7 +237,7 @@ export default {
 				this.$bus.$emit("success",result.msg);
 				this.$bus.$emit("toggleDotInfo");
 				this.cancel();
-                this.selectedIcons = "";
+				this.selectedIcons = "";
                 this.customIcon = false;
 			}).catch(result => this.$bus.$emit("error",result.msg));
 		},
@@ -396,9 +414,15 @@ export default {
 		padding: 5px;
 		padding-left: 16px;
 	}
-	.icons_elem img
+	.icons_elem div
 	{
 		width: 45px;
 		height: 48px;
+		background-size: auto 42px;
+		background-repeat: no-repeat;
+		background-position: center;
+		display: inline-block;
+		margin: 2px;
+		margin-top: 0;
 	}
 </style>

@@ -114,8 +114,9 @@ export default {
 			if (preserveViewport) routes[id].setOptions({preserveViewport:preserveViewport});
 			if (options)
 			{
-				routes[id].setOptions({polylineOptions: {strokeColor: options.color}});
+				routes[id].setOptions({polylineOptions: {strokeColor: options.color, strokeWeight: 5}});
 			}
+			console.log(routes);
 			routes[id].setDirections(route);
 			
 			routes[id].addListener("directions_changed",() => {
@@ -287,7 +288,7 @@ export default {
 				});
 			}
 			this._destroyRoute = (shape,callback) => {
-				delete routes[shape.id];
+				//delete routes[shape.id];
 				this.clearRoute(shape.id);
 			}
 			this._tryAddPolygon = (callback) => {
