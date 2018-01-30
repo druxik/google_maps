@@ -116,7 +116,6 @@ export default {
 			{
 				routes[id].setOptions({polylineOptions: {strokeColor: options.color, strokeWeight: 5}});
 			}
-			console.log(routes);
 			routes[id].setDirections(route);
 			
 			routes[id].addListener("directions_changed",() => {
