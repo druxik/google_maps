@@ -117,8 +117,8 @@
 												<span class="icon-loading icon-spin"></span>
 												Loading...
 											</button>
-											<button class="btn btn-default btn-sm" v-else @click="buildRoute(s)">
-												<span class="icon-checkmark"></span>
+											<button class="btn btn-default btn-sm" v-else @click="buildRoute(s, $event)" data-save="true">
+												<span class="icon-checkmark" data-save="true"></span>
 												Apply
 											</button>
 										</div>
@@ -168,7 +168,7 @@ export default {
 			dragging: false,
 			colors: defaultProps,
 			showColor: false,
-			valueColor: false
+			valueColor: false,
 		};
 	},
 	computed: {
@@ -181,11 +181,6 @@ export default {
 		}
 	},
 	methods: {
-		setStyle(s)
-		{
-			console.log(s);
-			return "background: "+s.options.color+";";
-		},
 		setId(value)
 		{
 			//this.$nextTick(() => {});
@@ -331,10 +326,15 @@ export default {
 			console.log("destroyWaypointAutocomplete",arguments);
 		},
 		editRoute: function(s) {
-			this.$store.dispatch("project/setShapeData",{id:s.id,editing:true});
+		    this.$store.dispatch("project/setShapeData",{id:s.id,editing:true});
 		},
-		buildRoute: function(s) {
+		buildRoute: function(s, event = null) {
 		    //s.options.color = this.valueColor;
+			// при нажатии на шестерёнки изменения маршрута выходить, срабатывает родительский клик
+			if (event == null && s.editing)
+			{
+			    return;
+			}
 			this.$store.dispatch("project/setShapeData",{id:s.id,loading:true});
 			this.$bus.$emit("buildRoute",s,false,(resultType,result) => {
 				if (resultType=="success") {

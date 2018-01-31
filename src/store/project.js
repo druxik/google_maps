@@ -250,7 +250,8 @@ const actions = {
 			if (data.icon != undefined && data.icon != "")
 			{
                 s.icon = data.icon;
-                s.customIcon = data.customIcon;
+                if (data.customIcon != undefined)
+                    s.customIcon = data.customIcon;
 			}
 			data.shape = s;
             commit("setShapeData",data);

@@ -44,7 +44,7 @@ export default {
 			layers: state => state.layers
 		}),
 		markerIconSize: function() {
-			return new google.maps.Size(30,30);
+			return new google.maps.Size(45,48);
 		},
 		markerIconAnchor: function() {
 			return new google.maps.Point(15,15);

@@ -58,6 +58,10 @@ export default {
 		addToProject: function() {
 			this.$bus.$emit("tryAdd","marker",this.r,(resultType) => {
 				if (resultType=="success") {
+				    if ((this.r.icon != undefined) && (this.r.icon != "") && (this.$icons.indexOf(this.r.icon) == -1))
+					{
+                        this.$icons = this.r.icon;
+                    }
 					this.$bus.$emit("toggleDetailedResult");
 				}
 			});

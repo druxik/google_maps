@@ -51,9 +51,6 @@
 
 							<div style="background-image: url('https://mt.googleapis.com/vt/icon/name=icons/spotlight/spotlight-poi.png&scale=1')" @click="selectIcons($event)" data-custom="false" data-url="https://mt.googleapis.com/vt/icon/name=icons/spotlight/spotlight-poi.png&scale=1"></div>
 							<div v-for="icon in icons" v-bind:style="{ 'background-image' : 'url(' + icon + ')'}"  @click="selectIcons($event)" data-custom="true" :data-url="icon"></div>
-							<!--<div style="background-image: url('https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru')" @click="selectIcons($event)" data-custom="true" data-url="https://developers.google.com/maps/documentation/javascript/images/custom-marker.png?hl=ru"></div>-->
-
-
 						</div>
 						<div class="control_button" style="">
 							<button class="btn btn-primary btn-sm" style=" box-sizing: border-box;" @click="showStyle=false"><span class="icon-checkmark"></span>Save</button>
